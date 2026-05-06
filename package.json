@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "smoke": "node scripts/smoke-test.mjs",
+    "run:rule": "node scripts/runner.mjs --policy rule",
+    "run:stub": "node scripts/runner.mjs --policy stub",
     "serve": "python -m http.server 8000"
   }
 }
