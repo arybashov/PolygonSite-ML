@@ -1,6 +1,7 @@
-const RESULTS_URL = 'results.json';
-const REFRESH_MS  = 5000;
-const ROLL_WIN    = 10;
+const RESULTS_URL  = 'results.json';
+const TRAINLOG_URL = 'data/train_log.json';
+const REFRESH_MS   = 5000;
+const ROLL_WIN     = 10;
 
 const RUN_COLORS = [
   '#4ecb71', '#5ba3e8', '#e8a830', '#3ecaa5',
@@ -52,6 +53,20 @@ export function initResultsPanel(openBtn, overlay, closeBtn) {
     charts.push(buildRewardChart(runs));
     charts.push(buildRatesChart(runs));
     buildTable(runs);
+    loadTrainLog();
+  }
+
+  async function loadTrainLog() {
+    try {
+      const res = await fetch(`${TRAINLOG_URL}?_=${Date.now()}`);
+      if (!res.ok) return;
+      const log = await res.json();
+      if (!Array.isArray(log) || log.length === 0) return;
+      const wrap = document.getElementById('trainLogWrap');
+      wrap.classList.remove('hidden');
+      if (charts._trainChart) charts._trainChart.destroy();
+      charts._trainChart = buildTrainLogChart(log);
+    } catch {}
   }
 
   function showEmpty(msg) {
@@ -205,6 +220,50 @@ function buildTable(runs) {
       </tr></thead>
       <tbody>${tbody}</tbody>
     </table>`;
+}
+
+function buildTrainLogChart(log) {
+  const ctx    = document.getElementById('chartTrainLog').getContext('2d');
+  const labels = log.map((r) => r.epoch);
+
+  return new window.Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label:       'Train loss',
+          data:        log.map((r) => r.train_loss),
+          borderColor: '#4ecb71',
+          backgroundColor: 'transparent',
+          borderWidth: 2,
+          pointRadius: 0,
+          tension:     0.3,
+        },
+        {
+          label:       'Val loss',
+          data:        log.map((r) => r.val_loss),
+          borderColor: '#e8a830',
+          backgroundColor: 'transparent',
+          borderWidth: 2,
+          borderDash:  [4, 3],
+          pointRadius: 0,
+          tension:     0.3,
+        },
+      ],
+    },
+    options: {
+      ...chartOptions('Training loss (BC)'),
+      scales: {
+        ...chartOptions('').scales,
+        y: {
+          type: 'logarithmic',
+          ticks: { color: 'rgba(200,216,192,0.45)', font: { size: 9 } },
+          grid:  { color: 'rgba(80,200,100,0.08)' },
+        },
+      },
+    },
+  });
 }
 
 function chartOptions(title) {
