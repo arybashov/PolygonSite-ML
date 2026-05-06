@@ -1,874 +1,138 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Drone Intercept Simulator</title>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600&display=swap');
-
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  :root {
-    --bg: #0d0f0e;
-    --surface: #131612;
-    --border: rgba(80,200,100,0.15);
-    --green: #4ecb71;
-    --green-dim: rgba(78,203,113,0.6);
-    --red: #e04b4b;
-    --amber: #e8a830;
-    --blue: #5ba3e8;
-    --teal: #3ecaa5;
-    --text: #c8d8c0;
-    --text-dim: rgba(200,216,192,0.45);
-    --mono: 'Share Tech Mono', monospace;
-    --sans: 'Rajdhani', sans-serif;
-  }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--sans);
-    height: 100vh;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    padding: 16px 16px 16px;
-    background-image:
-      radial-gradient(ellipse 80% 40% at 50% 0%, rgba(78,203,113,0.04) 0%, transparent 70%);
-  }
-
-  header {
-    flex-shrink: 0;
-    display: flex;
-    align-items: baseline;
-    gap: 16px;
-    margin-bottom: 12px;
-    border-bottom: 1px solid var(--border);
-    padding-bottom: 10px;
-  }
-
-  .logo {
-    font-family: var(--mono);
-    font-size: 11px;
-    color: var(--green);
-    letter-spacing: 0.12em;
-    opacity: 0.7;
-    white-space: nowrap;
-  }
-
-  h1 {
-    font-family: var(--mono);
-    font-size: 18px;
-    font-weight: 400;
-    letter-spacing: 0.08em;
-    color: var(--green);
-    text-transform: uppercase;
-  }
-
-  .subtitle {
-    font-size: 13px;
-    color: var(--text-dim);
-    letter-spacing: 0.04em;
-    margin-left: auto;
-    white-space: nowrap;
-  }
-
-  .main {
-    flex: 1;
-    min-height: 0;
-    display: flex;
-    flex-direction: row;
-    gap: 14px;
-    overflow: hidden;
-  }
-
-  .sidebar {
-    flex-shrink: 0;
-    width: 260px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    overflow-y: auto;
-  }
-
-  .canvas-area {
-    flex: 1;
-    min-width: 0;
-    min-height: 0;
-    display: flex;
-  }
-
-  .canvas-area canvas {
-    width: 100% !important;
-    height: 100% !important;
-  }
-
-  .panel {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 14px 18px;
-  }
-
-  .panel-title {
-    font-family: var(--mono);
-    font-size: 10px;
-    letter-spacing: 0.15em;
-    color: var(--green-dim);
-    text-transform: uppercase;
-    margin-bottom: 12px;
-  }
-
-  .controls {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .ctrl {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .ctrl label {
-    font-size: 11px;
-    color: var(--text-dim);
-    min-width: 0;
-    flex: 1;
-    letter-spacing: 0.02em;
-  }
-
-  .ctrl input[type=range] {
-    flex: 1;
-    -webkit-appearance: none;
-    height: 2px;
-    background: rgba(78,203,113,0.2);
-    outline: none;
-    border-radius: 1px;
-  }
-
-  .ctrl input[type=range]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: var(--green);
-    cursor: pointer;
-    box-shadow: 0 0 6px rgba(78,203,113,0.5);
-  }
-
-  .ctrl input[type=range]::-moz-range-thumb {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: var(--green);
-    cursor: pointer;
-    border: none;
-  }
-
-  .ctrl span {
-    font-family: var(--mono);
-    font-size: 12px;
-    color: var(--green);
-    min-width: 38px;
-    text-align: right;
-  }
-
-  .stats-row {
-    display: flex;
-    gap: 0;
-    flex-wrap: wrap;
-  }
-
-  .stat {
-    font-family: var(--mono);
-    font-size: 11px;
-    color: var(--text-dim);
-    padding: 0 18px 0 0;
-    letter-spacing: 0.05em;
-  }
-
-  .stat b {
-    color: var(--green);
-    font-weight: 400;
-  }
-
-  .stat-int b { color: var(--teal); }
-  .stat-hit b { color: var(--red); }
-  .stat-ad b  { color: var(--amber); }
-  .stat-time b { color: var(--text); }
-
-  .btn-row {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-  }
-
-  button {
-    font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    padding: 7px 18px;
-    background: transparent;
-    color: var(--green);
-    border: 1px solid rgba(78,203,113,0.4);
-    border-radius: 3px;
-    cursor: pointer;
-    transition: background 0.15s, border-color 0.15s;
-  }
-
-  button:hover {
-    background: rgba(78,203,113,0.08);
-    border-color: var(--green);
-  }
-
-  button:active { transform: scale(0.97); }
-
-  .hint {
-    font-family: var(--mono);
-    font-size: 10px;
-    color: var(--text-dim);
-    letter-spacing: 0.06em;
-    margin-left: auto;
-  }
-
-  canvas {
-    display: block;
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    cursor: crosshair;
-  }
-
-  .legend {
-    display: flex;
-    gap: 20px;
-    flex-wrap: wrap;
-  }
-
-  .leg-item {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    font-size: 11px;
-    color: var(--text-dim);
-    letter-spacing: 0.03em;
-  }
-
-  .leg-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-
-  @media (max-width: 700px) {
-    body { height: auto; overflow: auto; }
-    .main { flex-direction: column; }
-    .sidebar { width: 100%; }
-    h1 { font-size: 14px; }
-    .subtitle { display: none; }
-  }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Drone Intercept Simulator ML</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+  <header>
+    <div class="logo">SIM // ML SANDBOX</div>
+    <h1>Drone Intercept Simulator</h1>
+    <div class="subtitle">2500 x 2500 м · обучаем только дроны</div>
+  </header>
 
-<header>
-  <div class="logo">SIM // v1.0</div>
-  <h1>Drone Intercept Simulator</h1>
-  <div class="subtitle">2500 × 2500 м · реальное время</div>
-</header>
+  <main class="main">
+    <aside class="sidebar">
+      <section class="panel">
+        <div class="panel-title">Параметры</div>
+        <div class="controls">
+          <div class="ctrl">
+            <label for="dspeed">Скорость дрона (км/ч)</label>
+            <input type="range" min="80" max="300" value="200" step="10" id="dspeed">
+            <span id="dspeedV">200</span>
+          </div>
+          <div class="ctrl">
+            <label for="aspeed">Скорость антидрона (км/ч)</label>
+            <input type="range" min="150" max="500" value="300" step="10" id="aspeed">
+            <span id="aspeedV">300</span>
+          </div>
+          <div class="ctrl">
+            <label for="camrange">Дальность камеры (м)</label>
+            <input type="range" min="300" max="2500" value="1500" step="50" id="camrange">
+            <span id="camrangeV">1500</span>
+          </div>
+          <div class="ctrl">
+            <label for="arange">Дальность антидрона (м)</label>
+            <input type="range" min="200" max="800" value="600" step="50" id="arange">
+            <span id="arangeV">600</span>
+          </div>
+          <div class="ctrl">
+            <label for="ndrones">Кол-во дронов</label>
+            <input type="range" min="1" max="15" value="5" step="1" id="ndrones">
+            <span id="ndronesV">5</span>
+          </div>
+          <div class="ctrl">
+            <label for="nanti">Кол-во антидронов</label>
+            <input type="range" min="1" max="15" value="5" step="1" id="nanti">
+            <span id="nantiV">5</span>
+          </div>
+          <div class="ctrl">
+            <label for="adelay">Задержка вылета (с)</label>
+            <input type="range" min="0" max="30" value="5" step="1" id="adelay">
+            <span id="adelayV">5</span>
+          </div>
+        </div>
+      </section>
 
-<div class="main">
+      <section class="panel">
+        <div class="btn-row">
+          <button id="btnReset" type="button">↺ Новый сценарий</button>
+        </div>
+      </section>
 
-  <div class="sidebar">
+      <section class="panel">
+        <div class="panel-title">Статистика</div>
+        <div class="stats-row">
+          <div class="stat">Дроны: <b id="sDrones">5</b></div>
+          <div class="stat stat-hit">Поразили цель: <b id="sHits">0</b></div>
+          <div class="stat stat-int">Перехвачено: <b id="sInt">0</b></div>
+          <div class="stat stat-ad">Антидроны: <b id="sAD">0</b></div>
+          <div class="stat stat-time">Время: <b id="sTime">0</b>с</div>
+        </div>
+      </section>
 
-    <div class="panel">
-      <div class="panel-title">Параметры</div>
-      <div class="controls">
-        <div class="ctrl"><label>Скорость дрона (км/ч)</label><input type="range" min="80" max="300" value="200" step="10" id="dspeed"><span id="dspeedV">200</span></div>
-        <div class="ctrl"><label>Скорость антидрона (км/ч)</label><input type="range" min="150" max="500" value="300" step="10" id="aspeed"><span id="aspeedV">300</span></div>
-        <div class="ctrl"><label>Дальность камеры (м)</label><input type="range" min="300" max="2500" value="1500" step="50" id="camrange"><span id="camrangeV">1500</span></div>
-        <div class="ctrl"><label>Дальность антидрона (м)</label><input type="range" min="200" max="800" value="600" step="50" id="arange"><span id="arangeV">600</span></div>
-        <div class="ctrl"><label>Кол-во дронов</label><input type="range" min="1" max="15" value="5" step="1" id="ndrones"><span id="ndronesV">5</span></div>
-        <div class="ctrl"><label>Кол-во антидронов</label><input type="range" min="1" max="15" value="5" step="1" id="nanti"><span id="nantiV">5</span></div>
-        <div class="ctrl"><label>Задержка вылета (с)</label><input type="range" min="0" max="30" value="5" step="1" id="adelay"><span id="adelayV">5</span></div>
-      </div>
-    </div>
+      <section class="panel">
+        <div class="panel-title">Легенда</div>
+        <div class="legend">
+          <div class="leg-item"><div class="leg-dot" style="background:#5ba3e8"></div>Дрон-камикадзе</div>
+          <div class="leg-item"><div class="leg-dot" style="background:#e04b4b"></div>Антидрон</div>
+          <div class="leg-item"><div class="leg-dot" style="background:rgba(100,160,255,0.6)"></div>Камера обнаружения</div>
+          <div class="leg-item"><div class="leg-dot" style="background:#e8a830"></div>Цель</div>
+          <div class="leg-item"><div class="leg-dot" style="background:rgba(94,185,235,0.6)"></div>Обходная точка</div>
+          <div class="leg-item"><div class="leg-dot" style="background:rgba(224,75,74,0.5)"></div>Предсказанный перехват</div>
+        </div>
+      </section>
 
-    <div class="panel">
-      <div class="btn-row">
-        <button id="btnReset">↺ Новый сценарий</button>
-      </div>
-    </div>
+      <section class="panel mt-auto">
+        <div class="hint">ЛКМ - цель · колесо - зум · ПКМ+drag - панорама</div>
+      </section>
+    </aside>
 
-    <div class="panel">
-      <div class="panel-title">Статистика</div>
-      <div class="stats-row" style="flex-direction:column;gap:6px;">
-        <div class="stat">Дроны: <b id="sDrones">5</b></div>
-        <div class="stat stat-hit">Поразили цель: <b id="sHits">0</b></div>
-        <div class="stat stat-int">Перехвачено: <b id="sInt">0</b></div>
-        <div class="stat stat-ad">Антидроны: <b id="sAD">0</b></div>
-        <div class="stat stat-time">Время: <b id="sTime">0</b>с</div>
-      </div>
-    </div>
+    <section class="canvas-area" aria-label="Симуляция полигона">
+      <canvas id="c"></canvas>
+    </section>
 
-    <div class="panel">
-      <div class="panel-title">Легенда</div>
-      <div class="legend" style="flex-direction:column;gap:7px;">
-        <div class="leg-item"><div class="leg-dot" style="background:#5ba3e8"></div>Дрон-камикадзе</div>
-        <div class="leg-item"><div class="leg-dot" style="background:#e04b4b"></div>Антидрон</div>
-        <div class="leg-item"><div class="leg-dot" style="background:rgba(100,160,255,0.6)"></div>Камера обнаружения</div>
-        <div class="leg-item"><div class="leg-dot" style="background:#e8a830"></div>Цель (объект атаки)</div>
-        <div class="leg-item"><div class="leg-dot" style="background:rgba(94,185,235,0.6)"></div>Обходная точка</div>
-        <div class="leg-item"><div class="leg-dot" style="background:rgba(224,75,74,0.5)"></div>Предсказанный перехват</div>
-      </div>
-    </div>
+    <aside class="ml-sidebar">
+      <section class="panel">
+        <div class="panel-title">ML Policy</div>
+        <div class="select-row">
+          <label for="policyMode">Drone policy</label>
+          <select id="policyMode">
+            <option value="rule">Rule-based</option>
+            <option value="team-stub">Team ML Stub</option>
+          </select>
+        </div>
+        <div class="policy-state">Active: <b id="policyStatus">Rule-based</b></div>
+      </section>
 
-    <div class="panel" style="margin-top:auto;">
-      <div class="hint" style="margin-left:0;">ЛКМ — цель · Колесико — зум · ПКМ+drag — панорама</div>
-    </div>
+      <section class="panel">
+        <div class="panel-title">Training Scope</div>
+        <div class="ml-row"><span>Agents</span><b>Drone team</b></div>
+        <div class="ml-row"><span>Defense</span><b>Rule-based</b></div>
+        <div class="ml-row"><span>Control</span><b>Deployment + waypoint</b></div>
+      </section>
 
-  </div>
+      <section class="panel">
+        <div class="panel-title">ML Contract</div>
+        <div class="ml-row"><span>Drone slots</span><b id="mlDroneSlots">15</b></div>
+        <div class="ml-row"><span>Deployment obs</span><b id="mlDeploymentObs">-</b></div>
+        <div class="ml-row"><span>Deployment action</span><b id="mlDeploymentAction">15</b></div>
+        <div class="ml-row"><span>Team obs</span><b id="mlTeamObs">-</b></div>
+        <div class="ml-row"><span>Team action</span><b id="mlTeamAction">30</b></div>
+      </section>
 
-  <div class="canvas-area">
-    <canvas id="c"></canvas>
-  </div>
+      <section class="panel">
+        <div class="panel-title">Episode</div>
+        <div class="ml-row"><span>Seed</span><b id="mlSeed">-</b></div>
+        <div class="ml-row"><span>Mode</span><b id="mlMode">Rule-based</b></div>
+        <div class="ml-row"><span>Attack intent</span><b id="mlAttackIntent">0</b></div>
+        <div class="ml-row"><span>Evade intent</span><b id="mlEvadeIntent">0</b></div>
+      </section>
+    </aside>
+  </main>
 
-</div>
-
-<script>
-const canvas=document.getElementById('c');
-const ctx=canvas.getContext('2d');
-let W,H;
-
-function resize(){
-  const area=canvas.parentElement;
-  const w=area.clientWidth||600;
-  const h=area.clientHeight||600;
-  canvas.width=w;
-  canvas.height=h;
-  W=canvas.width;H=canvas.height;
-}
-resize();
-window.addEventListener('resize',resize);
-
-const DT=1/60,POLY=2500,MS=1;
-const ARRIVAL_R=20,INTERCEPT_R=25;
-const CAM_FOV=50*Math.PI/180,ANTI_FOV=50*Math.PI/180,DRONE_FOV=Math.PI*2;
-const DRONE_DETECT_R=600;
-const BASE_X=POLY/2,BASE_Y=POLY/2;
-const CAM_COUNT=10,CENTER_ZONE=800;
-const TRAIL_LEN=600;
-const DRONE_COLS=['#5ba3e8','#3ecaa5','#7ec87a','#e8a830','#c87aad','#9a8fe0','#e87a5b','#5be8c8','#e8d85b','#a0e85b','#5b8be8','#e85ba0','#aaa0ff','#ffaa60','#60ffcc'];
-
-const cam={x:POLY/2,y:POLY/2,zoom:()=>W/POLY*0.95};
-let camOffX=0,camOffY=0,camUserZoom=1.0;
-let userPan=false,panStart={x:0,y:0},camStart={x:0,y:0};
-let simTime=0,drones=[],targets=[],cameras=[],antidrones=[],explosions=[];
-
-function gp(id){return parseFloat(document.getElementById(id).value);}
-function lerp(a,b,t){return a+(b-a)*t;}
-function adiff(a,b){let d=b-a;while(d>Math.PI)d-=2*Math.PI;while(d<-Math.PI)d+=2*Math.PI;return d;}
-function getZoom(){return cam.zoom()*camUserZoom;}
-function w2s(wx,wy){const z=getZoom(),cx=POLY/2+camOffX,cy=POLY/2+camOffY;return{x:(wx-cx)*z+W/2,y:(wy-cy)*z+H/2};}
-function s2w(sx,sy){const z=getZoom(),cx=POLY/2+camOffX,cy=POLY/2+camOffY;return{x:(sx-W/2)/z+cx,y:(sy-H/2)/z+cy};}
-function rnd(a,b){return a+Math.random()*(b-a);}
-function vdist(ax,ay,bx,by){const dx=ax-bx,dy=ay-by;return Math.sqrt(dx*dx+dy*dy);}
-function inCone(ox,oy,angle,fov,tx,ty,range){
-  const dx=tx-ox,dy=ty-oy,d=Math.sqrt(dx*dx+dy*dy);
-  return d<=range&&Math.abs(adiff(angle,Math.atan2(dy,dx)))<=fov/2;
-}
-
-function spawnEdge(){
-  const side=Math.floor(Math.random()*4),m=50;
-  if(side===0)return{x:rnd(m,POLY-m),y:m};
-  if(side===1)return{x:rnd(m,POLY-m),y:POLY-m};
-  if(side===2)return{x:m,y:rnd(m,POLY-m)};
-  return{x:POLY-m,y:rnd(m,POLY-m)};
-}
-function spawnTarget(){
-  const a=Math.random()*Math.PI*2,r=rnd(100,CENTER_ZONE);
-  return{x:POLY/2+Math.cos(a)*r,y:POLY/2+Math.sin(a)*r,hit:false};
-}
-function makeDrone(i,sp,tgt,tgtIdx){
-  return{id:i,x:sp.x,y:sp.y,angle:Math.atan2(POLY/2-sp.y,POLY/2-sp.x),
-    speed:gp('dspeed')/3.6,tx:tgt.x,ty:tgt.y,rtx:tgt.x,rty:tgt.y,targetIdx:tgtIdx,
-    trail:[],mode:'approach',deadZone:false,alive:true,col:DRONE_COLS[i%DRONE_COLS.length],
-    evading:false,evadeWpt:null,predictPt:null,threatId:null,evadeCooldown:0};
-}
-
-function findClosestUnattackedTarget(d){
-  let best=null,bestDist=Infinity;
-  targets.forEach((t,i)=>{
-    if(t.hit)return;
-    const dist=vdist(d.x,d.y,t.x,t.y);
-    if(dist<bestDist){bestDist=dist;best={t,i};}
-  });
-  return best;
-}
-function makeCamera(i,x,y,angle){
-  return{id:i,x,y,angle,detected:null,cooldown:0};
-}
-
-function placeCamerasAroundTargets(tgtList){
-  const count=10;
-  const R=POLY*0.15; // радиус кольца камер
-  return Array.from({length:count},(_, i)=>{
-    const a=(i/count)*Math.PI*2;
-    const x=POLY/2+Math.cos(a)*R;
-    const y=POLY/2+Math.sin(a)*R;
-    return makeCamera(i,x,y,a); // смотрит наружу
-  });
-}
-
-function makeAnti(id,total){
-  // Разносим по кругу вокруг базы
-  const a=total>1?(id/total)*Math.PI*2:0;
-  const r=total>1?40:0;
-  return{id,x:BASE_X+Math.cos(a)*r,y:BASE_Y+Math.sin(a)*r,angle:0,speed:0,
-    target:null,lastKnownX:null,lastKnownY:null,
-    mode:'base',trail:[],alive:true,
-    launchDelay:0,pendingTarget:null};
-}
-
-function computeEvadeWaypoint(d,threat){
-  const dSpd=d.speed*MS,aSpd=gp('aspeed')/3.6*MS;
-  const avx=Math.cos(threat.angle)*aSpd,avy=Math.sin(threat.angle)*aSpd;
-  const distDA=vdist(d.x,d.y,threat.x,threat.y);
-  const T=Math.max(1,distDA/(dSpd+aSpd));
-  const predX=threat.x+avx*T,predY=threat.y+avy*T;
-  const lineAngle=Math.atan2(predY-threat.y,predX-threat.x);
-  const perpAngle=lineAngle+Math.PI/2;
-  const safeR=Math.max(150,distDA*0.4);
-  const midX=(d.x+predX)/2,midY=(d.y+predY)/2;
-  const c1x=midX+Math.cos(perpAngle)*safeR,c1y=midY+Math.sin(perpAngle)*safeR;
-  const c2x=midX-Math.cos(perpAngle)*safeR,c2y=midY-Math.sin(perpAngle)*safeR;
-  const d1=vdist(c1x,c1y,d.rtx,d.rty),d2=vdist(c2x,c2y,d.rtx,d.rty);
-  return{wpt:d1<d2?{x:c1x,y:c1y}:{x:c2x,y:c2y},pred:{x:predX,y:predY}};
-}
-
-function updateDrone(d){
-  if(!d.alive||d.mode==='hit'||d.mode==='intercepted')return;
-  // Если текущая цель уже поражена — найти ближайшую свободную
-  if(targets[d.targetIdx]&&targets[d.targetIdx].hit){
-    const ct=findClosestUnattackedTarget(d);
-    if(ct){d.targetIdx=ct.i;d.rtx=ct.t.x;d.rty=ct.t.y;d.tx=ct.t.x;d.ty=ct.t.y;d.mode='approach';}
-    else{d.alive=false;return;} // все цели поражены
-  }
-  const cKMH=gp('dspeed'),mKMH=Math.min(cKMH*0.6,cKMH-10);
-  const om=30*(1-(50-10)/190*0.5)*Math.PI/180,maxT=om*DT;
-  const tr=(d.speed*MS)/om,dz=tr*1.5;
-  if(d.evadeCooldown>0)d.evadeCooldown-=DT;
-  const distToTarget=vdist(d.x,d.y,d.rtx,d.rty);
-  const ATTACK_COMMIT_DIST=250;
-
-  // Если цель близко — атакуем несмотря ни на что
-  if(distToTarget<ATTACK_COMMIT_DIST){
-    if(d.evading){d.evading=false;d.evadeWpt=null;d.predictPt=null;d.threatId=null;}
-    d.tx=d.rtx;d.ty=d.rty;d.mode='approach';
-    if(distToTarget<ARRIVAL_R){targets[d.targetIdx].hit=true;explosions.push({x:d.x,y:d.y,t:1.0});d.alive=false;d.trail=[];d.mode='hit';return;}
-  } else {
-    let threat=null;
-    for(const a of antidrones){
-      if(!a.alive||a.mode==='base')continue;
-      if(inCone(d.x,d.y,d.angle,DRONE_FOV,a.x,a.y,DRONE_DETECT_R)){threat=a;break;}
-    }
-    if(threat){
-      // При начале уклонения — переназначить ближайшую свободную цель
-      if(!d.evading){
-        const ct=findClosestUnattackedTarget(d);
-        if(ct){d.targetIdx=ct.i;d.rtx=ct.t.x;d.rty=ct.t.y;}
-      }
-      if(d.threatId!==threat.id||!d.evadeWpt||d.evadeCooldown<=0){
-        const res=computeEvadeWaypoint(d,threat);
-        d.evadeWpt=res.wpt;d.predictPt=res.pred;
-        d.threatId=threat.id;d.evadeCooldown=0.5;
-      }
-      d.evading=true;d.tx=d.evadeWpt.x;d.ty=d.evadeWpt.y;d.mode='evade';
-    } else {
-      if(d.evading){
-        d.evading=false;d.evadeWpt=null;d.predictPt=null;d.threatId=null;
-        d.tx=d.x+Math.cos(d.angle)*tr*2;d.ty=d.y+Math.sin(d.angle)*tr*2;d.mode='reapproach';
-      } else if(d.mode==='reapproach'){
-        if(vdist(d.x,d.y,d.tx,d.ty)<tr){d.tx=d.rtx;d.ty=d.rty;d.mode='approach';}
-      } else {
-        d.mode='approach';
-        const rdx=d.rtx-d.x,rdy=d.rty-d.y,rdist=vdist(d.x,d.y,d.rtx,d.rty);
-        if(rdist<ARRIVAL_R){targets[d.targetIdx].hit=true;explosions.push({x:d.x,y:d.y,t:1.0});d.alive=false;d.trail=[];d.mode='hit';return;}
-        const ar=Math.atan2(rdy,rdx),ld=Math.abs(adiff(d.angle,ar));
-        const inDZ=rdist<dz&&ld>Math.PI/3;
-        if(inDZ&&d.mode!=='bypass'){
-          d.deadZone=true;d.mode='bypass';
-          const cz=Math.cos(d.angle)*rdy-Math.sin(d.angle)*rdx;
-          const side=cz>0?1:-1;
-          d.tx=d.rtx+Math.sin(d.angle)*tr*1.5*side;
-          d.ty=d.rty-Math.cos(d.angle)*tr*1.5*side;
-        } else if(!inDZ){
-          d.deadZone=false;
-          if(d.mode==='bypass'){if(vdist(d.x,d.y,d.tx,d.ty)<ARRIVAL_R*4){d.mode='approach';d.tx=d.rtx;d.ty=d.rty;}}
-          else{d.tx=d.rtx;d.ty=d.rty;}
-        }
-      }
-    }
-    if(d.mode!=='evade'&&d.mode!=='reapproach'){if(vdist(d.x,d.y,d.rtx,d.rty)<ARRIVAL_R){targets[d.targetIdx].hit=true;explosions.push({x:d.x,y:d.y,t:1.0});d.alive=false;d.trail=[];d.mode='hit';return;}}
-  }
-  const diff=adiff(d.angle,Math.atan2(d.ty-d.y,d.tx-d.x));
-  d.angle+=Math.max(-maxT,Math.min(maxT,diff));
-  const dot=Math.max(0,Math.cos(diff));
-  d.speed=lerp(d.speed,lerp(mKMH/3.6,cKMH/3.6,dot),DT/0.5);
-  d.x+=Math.cos(d.angle)*d.speed*DT*MS;
-  d.y+=Math.sin(d.angle)*d.speed*DT*MS;
-  d.trail.push({x:d.x,y:d.y});
-  if(d.trail.length>TRAIL_LEN)d.trail.shift();
-}
-
-function updateCameras(){
-  const camRange=gp('camrange');
-  const delay=gp('adelay');
-  cameras.forEach(c=>{
-    if(c.cooldown>0){c.cooldown-=DT;c.detected=null;return;}
-    c.detected=null;let best=null,bestDist=camRange;
-    drones.forEach(d=>{
-      if(!d.alive||d.mode==='hit'||d.mode==='intercepted')return;
-      if(!inCone(c.x,c.y,c.angle,CAM_FOV,d.x,d.y,camRange))return;
-      const dd=vdist(c.x,c.y,d.x,d.y);if(dd<bestDist){bestDist=dd;best=d;}
-    });
-    if(best){
-      c.detected=best;
-      const freeAD=antidrones.find(a=>a.alive&&a.mode==='base'&&a.launchDelay===0);
-      if(freeAD){
-        freeAD.launchDelay=delay;
-        freeAD.pendingTarget=best;
-        freeAD.mode='waiting';
-        c.cooldown=3;
-      }
-    }
-  });
-}
-
-function findNewTarget(a){
-  const aRange=gp('arange');
-  const inView=drones.filter(d=>d.alive&&d.mode!=='hit'&&d.mode!=='intercepted'&&inCone(a.x,a.y,a.angle,ANTI_FOV,d.x,d.y,aRange));
-  if(inView.length>0){inView.sort((x,y)=>vdist(a.x,a.y,x.x,x.y)-vdist(a.x,a.y,y.x,y.y));return inView[0];}
-  const sig=cameras.find(c=>c.detected&&c.detected.alive&&c.detected.mode!=='hit'&&c.detected.mode!=='intercepted');
-  return sig?sig.detected:null;
-}
-
-function updateAnti(){
-  const aSpeedMS=gp('aspeed')/3.6,aRange=gp('arange');
-  const om=60*Math.PI/180,maxT=om*DT;
-  antidrones.forEach(a=>{
-    if(!a.alive)return;
-
-    // countdown перед вылетом
-    if(a.mode==='waiting'){
-      a.launchDelay-=DT;
-      if(a.launchDelay<=0){
-        a.launchDelay=0;
-        if(a.pendingTarget&&a.pendingTarget.alive&&a.pendingTarget.mode!=='hit'&&a.pendingTarget.mode!=='intercepted'){
-          a.target=a.pendingTarget;a.lastKnownX=a.target.x;a.lastKnownY=a.target.y;
-          a.angle=Math.atan2(a.target.y-a.y,a.target.x-a.x);
-          a.mode='intercept';
-        } else {
-          const newT=findNewTarget(a);
-          if(newT){a.target=newT;a.lastKnownX=newT.x;a.lastKnownY=newT.y;
-            a.angle=Math.atan2(newT.y-a.y,newT.x-a.x);a.mode='intercept';}
-          else{a.mode='base';}
-        }
-        a.pendingTarget=null;
-      }
-      return;
-    }
-
-    if(a.mode==='base')return;
-
-    // приоритет — собственная камера
-    if(a.mode!=='base'&&a.mode!=='waiting'){
-      const inView=drones.filter(d=>d.alive&&d.mode!=='hit'&&d.mode!=='intercepted'&&inCone(a.x,a.y,a.angle,ANTI_FOV,d.x,d.y,aRange));
-      if(inView.length>0){
-        inView.sort((x,y)=>vdist(a.x,a.y,x.x,x.y)-vdist(a.x,a.y,y.x,y.y));
-        const cl=inView[0];if(a.target!==cl){a.target=cl;a.lastKnownX=cl.x;a.lastKnownY=cl.y;}
-        a.mode='chase';
-      }
-    }
-    if(a.mode==='intercept'||a.mode==='chase'||a.mode==='lastknown'){
-      if(a.mode!=='lastknown'){
-        if(!a.target||!a.target.alive||a.target.mode==='hit'||a.target.mode==='intercepted'){
-          const newT=findNewTarget(a);
-          if(newT){a.target=newT;a.lastKnownX=newT.x;a.lastKnownY=newT.y;a.mode='intercept';}
-          else{a.mode='return';a.target=null;return;}
-        } else {
-          if(inCone(a.x,a.y,a.angle,ANTI_FOV,a.target.x,a.target.y,aRange)){a.lastKnownX=a.target.x;a.lastKnownY=a.target.y;a.mode='chase';}
-          else{a.mode='lastknown';}
-        }
-      }
-      let gx,gy;
-      if(a.mode==='chase'&&a.target&&a.target.alive){gx=a.target.x;gy=a.target.y;}
-      else if(a.lastKnownX!==null){gx=a.lastKnownX;gy=a.lastKnownY;}
-      else{a.mode='return';return;}
-      if(a.target&&a.target.alive&&a.target.mode!=='hit'&&a.target.mode!=='intercepted'){
-        if(vdist(a.x,a.y,a.target.x,a.target.y)<INTERCEPT_R){
-          explosions.push({x:a.target.x,y:a.target.y,t:1.0});
-          a.target.alive=false;a.target.mode='intercepted';a.target.trail=[];
-          a.alive=false;return;
-        }
-      }
-      if(a.mode==='lastknown'&&vdist(a.x,a.y,gx,gy)<30){
-        const newT=findNewTarget(a);
-        if(newT){a.target=newT;a.lastKnownX=newT.x;a.lastKnownY=newT.y;a.mode='intercept';}
-        else{a.mode='return';a.target=null;return;}
-      }
-      const diff=adiff(a.angle,Math.atan2(gy-a.y,gx-a.x));
-      a.angle+=Math.max(-maxT,Math.min(maxT,diff));
-      a.speed=lerp(a.speed,aSpeedMS,DT/0.3);
-      a.x+=Math.cos(a.angle)*a.speed*DT*MS;a.y+=Math.sin(a.angle)*a.speed*DT*MS;
-    } else if(a.mode==='return'){
-      const homeX=BASE_X+Math.cos(a.id/antidrones.length*Math.PI*2)*40;
-      const homeY=BASE_Y+Math.sin(a.id/antidrones.length*Math.PI*2)*40;
-      const dd=vdist(a.x,a.y,homeX,homeY);
-      if(dd<15){a.x=homeX;a.y=homeY;a.mode='base';a.speed=0;a.trail=[];return;}
-      const diff=adiff(a.angle,Math.atan2(homeY-a.y,homeX-a.x));
-      a.angle+=Math.max(-maxT,Math.min(maxT,diff));
-      a.speed=lerp(a.speed,aSpeedMS*0.7,DT/0.3);
-      a.x+=Math.cos(a.angle)*a.speed*DT*MS;a.y+=Math.sin(a.angle)*a.speed*DT*MS;
-    }
-    a.trail.push({x:a.x,y:a.y});if(a.trail.length>TRAIL_LEN)a.trail.shift();
-  });
-  for(let i=explosions.length-1;i>=0;i--){explosions[i].t-=DT*1.5;if(explosions[i].t<=0)explosions.splice(i,1);}
-}
-
-function update(){
-  simTime+=DT;
-  drones.forEach(updateDrone);updateCameras();updateAnti();
-  document.getElementById('sDrones').textContent=drones.filter(d=>d.alive&&d.mode!=='hit'&&d.mode!=='intercepted').length;
-  document.getElementById('sHits').textContent=drones.filter(d=>d.mode==='hit').length;
-  document.getElementById('sInt').textContent=drones.filter(d=>d.mode==='intercepted').length;
-  document.getElementById('sAD').textContent=antidrones.filter(a=>a.alive&&a.mode!=='base').length;
-  document.getElementById('sTime').textContent=Math.round(simTime);
-}
-
-function drawShape(x,y,angle,sc,bc,wc){
-  ctx.save();ctx.translate(x,y);ctx.rotate(angle);
-  ctx.beginPath();ctx.moveTo(16*sc,0);ctx.lineTo(-9*sc,-7*sc);ctx.lineTo(-5*sc,0);ctx.lineTo(-9*sc,7*sc);ctx.closePath();ctx.fillStyle=bc;ctx.fill();
-  ctx.beginPath();ctx.moveTo(3*sc,0);ctx.lineTo(-4*sc,-12*sc);ctx.lineTo(-8*sc,-12*sc);ctx.lineTo(-5*sc,0);ctx.lineTo(-8*sc,12*sc);ctx.lineTo(-4*sc,12*sc);ctx.closePath();ctx.fillStyle=wc;ctx.fill();
-  ctx.beginPath();ctx.moveTo(-5*sc,0);ctx.lineTo(-9*sc,-4*sc);ctx.lineTo(-11*sc,0);ctx.lineTo(-9*sc,4*sc);ctx.closePath();ctx.fillStyle=bc;ctx.fill();
-  ctx.restore();
-}
-
-function draw(){
-  const z=getZoom();
-  ctx.clearRect(0,0,W,H);
-  ctx.fillStyle='#0d0f0e';ctx.fillRect(0,0,W,H);
-
-  const p0=w2s(0,0),p1=w2s(POLY,POLY);
-  ctx.strokeStyle='rgba(78,203,113,0.15)';ctx.lineWidth=1.5;
-  ctx.strokeRect(p0.x,p0.y,p1.x-p0.x,p1.y-p0.y);
-  ctx.fillStyle='rgba(78,203,113,0.015)';
-  ctx.fillRect(p0.x,p0.y,p1.x-p0.x,p1.y-p0.y);
-
-  ctx.strokeStyle='rgba(78,203,113,0.06)';ctx.lineWidth=1;
-  for(let g=0;g<=POLY;g+=500){
-    const sx=w2s(g,0),sy=w2s(0,g);
-    ctx.beginPath();ctx.moveTo(sx.x,p0.y);ctx.lineTo(sx.x,p1.y);ctx.stroke();
-    ctx.beginPath();ctx.moveTo(p0.x,sy.y);ctx.lineTo(p1.x,sy.y);ctx.stroke();
-  }
-
-  const ctr=w2s(POLY/2,POLY/2);
-  ctx.beginPath();ctx.arc(ctr.x,ctr.y,CENTER_ZONE*z,0,Math.PI*2);
-  ctx.strokeStyle='rgba(224,75,74,0.15)';ctx.setLineDash([5,4]);ctx.lineWidth=1;ctx.stroke();ctx.setLineDash([]);
-  ctx.beginPath();ctx.arc(ctr.x,ctr.y,7,0,Math.PI*2);
-  ctx.fillStyle='rgba(224,75,74,0.6)';ctx.fill();
-  ctx.fillStyle='rgba(78,203,113,0.4)';ctx.font='10px "Share Tech Mono"';ctx.fillText('BASE',ctr.x+10,ctr.y+4);
-
-  const camRange=gp('camrange');
-  cameras.forEach(c=>{
-    const cs=w2s(c.x,c.y),active=c.detected!==null;
-    ctx.beginPath();ctx.moveTo(cs.x,cs.y);
-    ctx.arc(cs.x,cs.y,camRange*z,c.angle-CAM_FOV/2,c.angle+CAM_FOV/2);ctx.closePath();
-    ctx.fillStyle=active?'rgba(232,168,48,0.08)':'rgba(91,163,232,0.04)';ctx.fill();
-    ctx.strokeStyle=active?'rgba(232,168,48,0.55)':'rgba(91,163,232,0.18)';
-    ctx.lineWidth=active?1.5:0.8;ctx.stroke();
-    ctx.fillStyle=active?'#e8a830':'rgba(91,163,232,0.5)';
-    ctx.beginPath();ctx.arc(cs.x,cs.y,Math.max(2,3*z),0,Math.PI*2);ctx.fill();
-  });
-
-  drones.forEach(d=>{
-    if(!d.alive||d.trail.length<2)return;
-    for(let i=1;i<d.trail.length;i++){
-      const s0=w2s(d.trail[i-1].x,d.trail[i-1].y),s1=w2s(d.trail[i].x,d.trail[i].y);
-      const a=i/d.trail.length;
-      const col=d.col;
-      const r=parseInt(col.slice(1,3),16),g2=parseInt(col.slice(3,5),16),b=parseInt(col.slice(5,7),16);
-      ctx.beginPath();ctx.moveTo(s0.x,s0.y);ctx.lineTo(s1.x,s1.y);
-      ctx.strokeStyle=`rgba(${r},${g2},${b},${a*0.55})`;
-      ctx.lineWidth=a*2.5;ctx.stroke();
-    }
-  });
-  antidrones.forEach(a=>{
-    if(!a.alive||a.trail.length<2)return;
-    for(let i=1;i<a.trail.length;i++){
-      const s0=w2s(a.trail[i-1].x,a.trail[i-1].y),s1=w2s(a.trail[i].x,a.trail[i].y);
-      const at=i/a.trail.length;
-      ctx.beginPath();ctx.moveTo(s0.x,s0.y);ctx.lineTo(s1.x,s1.y);
-      ctx.strokeStyle=`rgba(224,75,74,${at*0.55})`;
-      ctx.lineWidth=at*2.5;ctx.stroke();
-    }
-  });
-
-  targets.forEach((t,i)=>{
-    if(t.hit)return;
-    const ts=w2s(t.x,t.y);
-    const pulse=0.5+0.5*Math.sin(simTime*3+i);
-    ctx.strokeStyle=`rgba(232,168,48,${0.35+pulse*0.3})`;
-    ctx.lineWidth=1.5;
-    const sz=Math.max(4,7*z);
-    ctx.beginPath();ctx.moveTo(ts.x-sz,ts.y);ctx.lineTo(ts.x+sz,ts.y);ctx.moveTo(ts.x,ts.y-sz);ctx.lineTo(ts.x,ts.y+sz);ctx.stroke();
-    ctx.beginPath();ctx.arc(ts.x,ts.y,sz*0.55,0,Math.PI*2);ctx.stroke();
-  });
-
-  drones.forEach(d=>{
-    if(!d.alive||d.mode==='intercepted')return;
-    const ds=w2s(d.x,d.y),sc=Math.max(0.4,Math.min(1.8,z*3.2));
-    if(d.evading&&d.evadeWpt&&d.predictPt){
-      ctx.beginPath();ctx.moveTo(ds.x,ds.y);
-      ctx.arc(ds.x,ds.y,DRONE_DETECT_R*z,d.angle-DRONE_FOV/2,d.angle+DRONE_FOV/2);ctx.closePath();
-      ctx.fillStyle='rgba(232,168,48,0.07)';ctx.fill();
-      ctx.strokeStyle='rgba(232,168,48,0.35)';ctx.lineWidth=1;ctx.stroke();
-      const pp=w2s(d.predictPt.x,d.predictPt.y);
-      ctx.strokeStyle='rgba(224,75,74,0.55)';ctx.lineWidth=1;
-      ctx.beginPath();ctx.moveTo(pp.x-5,pp.y-5);ctx.lineTo(pp.x+5,pp.y+5);ctx.moveTo(pp.x+5,pp.y-5);ctx.lineTo(pp.x-5,pp.y+5);ctx.stroke();
-      if(d.threatId!==null){
-        const threat=antidrones.find(a=>a.id===d.threatId);
-        if(threat&&threat.alive){
-          const as=w2s(threat.x,threat.y);
-          ctx.beginPath();ctx.moveTo(as.x,as.y);ctx.lineTo(pp.x,pp.y);
-          ctx.strokeStyle='rgba(224,75,74,0.25)';ctx.lineWidth=1;ctx.setLineDash([2,3]);ctx.stroke();ctx.setLineDash([]);
-        }
-      }
-      const wp=w2s(d.evadeWpt.x,d.evadeWpt.y);
-      ctx.beginPath();ctx.arc(wp.x,wp.y,6,0,Math.PI*2);
-      ctx.strokeStyle='rgba(91,163,232,0.8)';ctx.lineWidth=1.5;ctx.stroke();
-      ctx.beginPath();ctx.arc(wp.x,wp.y,2,0,Math.PI*2);ctx.fillStyle='#5ba3e8';ctx.fill();
-      const tgt=w2s(d.rtx,d.rty);
-      ctx.beginPath();ctx.moveTo(ds.x,ds.y);ctx.lineTo(wp.x,wp.y);ctx.lineTo(tgt.x,tgt.y);
-      ctx.strokeStyle='rgba(91,163,232,0.25)';ctx.lineWidth=1;ctx.setLineDash([3,3]);ctx.stroke();ctx.setLineDash([]);
-      ctx.fillStyle='#e8a830';ctx.font=`bold ${Math.max(10,11*z)}px "Share Tech Mono"`;
-      ctx.fillText('!',ds.x-3,ds.y-15*sc);
-    }
-    const bc=d.mode==='hit'?'#e04b4b':d.col,wc=d.mode==='hit'?'#e04b4b':d.col;
-    drawShape(ds.x,ds.y,d.angle,sc,bc,wc);
-    ctx.fillStyle='rgba(200,216,192,0.35)';ctx.font=`${Math.max(9,10*z)}px "Share Tech Mono"`;
-    ctx.fillText(`D${d.id+1}`,ds.x+13*sc,ds.y-9*sc);
-  });
-
-  // антидроны на базе с таймером
-  antidrones.forEach(a=>{
-    if(!a.alive||a.mode!=='waiting')return;
-    const ds=w2s(a.x,a.y);
-    const frac=a.launchDelay/Math.max(1,gp('adelay'));
-    ctx.beginPath();
-    ctx.arc(ds.x,ds.y,12,(-Math.PI/2),(Math.PI*2*frac)-Math.PI/2);
-    ctx.strokeStyle='rgba(232,168,48,0.7)';ctx.lineWidth=2;ctx.stroke();
-    ctx.fillStyle='rgba(232,168,48,0.8)';ctx.font='9px "Share Tech Mono"';
-    ctx.fillText(`A${a.id+1}:${Math.ceil(a.launchDelay)}s`,ds.x+16,ds.y);
-  });
-
-  const aRange=gp('arange');
-  antidrones.forEach(a=>{
-    if(!a.alive||a.mode==='base'||a.mode==='waiting')return;
-    const ds=w2s(a.x,a.y),sc=Math.max(0.4,Math.min(1.8,z*3.2));
-    if(a.mode==='chase'||a.mode==='intercept'||a.mode==='lastknown'){
-      ctx.beginPath();ctx.moveTo(ds.x,ds.y);
-      ctx.arc(ds.x,ds.y,aRange*z,a.angle-ANTI_FOV/2,a.angle+ANTI_FOV/2);ctx.closePath();
-      ctx.fillStyle=a.mode==='chase'?'rgba(224,75,74,0.1)':'rgba(224,75,74,0.04)';ctx.fill();
-      ctx.strokeStyle=a.mode==='chase'?'rgba(224,75,74,0.4)':'rgba(224,75,74,0.18)';ctx.lineWidth=1;ctx.stroke();
-    }
-    if(a.target&&a.target.alive){
-      const ts2=w2s(a.target.x,a.target.y);
-      ctx.beginPath();ctx.moveTo(ds.x,ds.y);ctx.lineTo(ts2.x,ts2.y);
-      ctx.strokeStyle='rgba(224,75,74,0.28)';ctx.lineWidth=1;ctx.setLineDash([3,3]);ctx.stroke();ctx.setLineDash([]);
-    } else if(a.mode==='lastknown'&&a.lastKnownX!==null){
-      const ls=w2s(a.lastKnownX,a.lastKnownY);
-      ctx.beginPath();ctx.arc(ls.x,ls.y,4,0,Math.PI*2);ctx.fillStyle='rgba(224,75,74,0.4)';ctx.fill();
-      ctx.beginPath();ctx.moveTo(ds.x,ds.y);ctx.lineTo(ls.x,ls.y);
-      ctx.strokeStyle='rgba(224,75,74,0.18)';ctx.lineWidth=1;ctx.setLineDash([2,4]);ctx.stroke();ctx.setLineDash([]);
-    }
-    drawShape(ds.x,ds.y,a.angle,sc,'#e04b4b','#c03030');
-    ctx.fillStyle='rgba(224,75,74,0.75)';ctx.font=`${Math.max(9,10*z)}px "Share Tech Mono"`;
-    ctx.fillText(`A${a.id+1}`,ds.x+13*sc,ds.y-9*sc);
-  });
-
-  explosions.forEach(e=>{
-    const es=w2s(e.x,e.y),r=e.t;
-    ctx.beginPath();ctx.arc(es.x,es.y,50*r*z,0,Math.PI*2);ctx.fillStyle=`rgba(224,75,74,${r*0.45})`;ctx.fill();
-    ctx.beginPath();ctx.arc(es.x,es.y,25*r*z,0,Math.PI*2);ctx.fillStyle=`rgba(232,168,48,${r*0.65})`;ctx.fill();
-    ctx.beginPath();ctx.arc(es.x,es.y,10*r*z,0,Math.PI*2);ctx.fillStyle=`rgba(255,255,255,${r*0.85})`;ctx.fill();
-  });
-
-  ctx.fillStyle='rgba(78,203,113,0.2)';ctx.font='10px "Share Tech Mono"';
-  ctx.fillText('2500m × 2500m',p0.x+6,p1.y-6);
-}
-
-function loop(){update();draw();requestAnimationFrame(loop);}
-
-function init(){
-  simTime=0;drones=[];targets=[];cameras=[];antidrones=[];explosions=[];
-  camOffX=0;camOffY=0;camUserZoom=1.0;
-  const nD=parseInt(gp('ndrones')),nA=parseInt(gp('nanti'));
-  const spawns=Array.from({length:nD},spawnEdge);
-  // Генерируем nD-1 случайных целей + база как одна из целей
-  const tgts=Array.from({length:nD-1},spawnTarget);
-  tgts.push({x:BASE_X,y:BASE_Y,hit:false});
-  tgts.forEach(t=>targets.push(t));
-
-  // Каждому дрону назначаем ближайшую ещё не назначенную цель
-  const assigned=new Set();
-  spawns.forEach((sp,i)=>{
-    let bestIdx=-1,bestDist=Infinity;
-    tgts.forEach((t,ti)=>{
-      if(assigned.has(ti))return;
-      const d=vdist(sp.x,sp.y,t.x,t.y);
-      if(d<bestDist){bestDist=d;bestIdx=ti;}
-    });
-    assigned.add(bestIdx);
-    drones.push(makeDrone(i,sp,tgts[bestIdx],bestIdx));
-  });
-  cameras=placeCamerasAroundTargets(targets);
-  for(let i=0;i<nA;i++)antidrones.push(makeAnti(i,nA));
-}
-
-canvas.addEventListener('wheel',(e)=>{
-  e.preventDefault();
-  const f=e.deltaY<0?1.12:0.9;
-  const rect=canvas.getBoundingClientRect();
-  const mx=(e.clientX-rect.left)*(W/rect.width),my=(e.clientY-rect.top)*(H/rect.height);
-  const wb=s2w(mx,my);
-  camUserZoom=Math.max(0.3,Math.min(8,camUserZoom*f));
-  const wa=s2w(mx,my);
-  camOffX-=wa.x-wb.x;camOffY-=wa.y-wb.y;
-},{passive:false});
-canvas.addEventListener('mousedown',(e)=>{
-  if(e.button===2){userPan=true;panStart={x:e.clientX,y:e.clientY};camStart={x:camOffX,y:camOffY};}
-});
-canvas.addEventListener('mousemove',(e)=>{
-  if(!userPan)return;
-  const z=getZoom();
-  camOffX=camStart.x-(e.clientX-panStart.x)/z;
-  camOffY=camStart.y-(e.clientY-panStart.y)/z;
-});
-canvas.addEventListener('mouseup',()=>{userPan=false;});
-canvas.addEventListener('contextmenu',(e)=>e.preventDefault());
-document.getElementById('btnReset').addEventListener('click',init);
-['dspeed','aspeed','camrange','arange','ndrones','nanti','adelay'].forEach(id=>{
-  document.getElementById(id).addEventListener('input',()=>{
-    document.getElementById(id+'V').textContent=document.getElementById(id).value;
-  });
-});
-
-init();loop();
-</script>
+  <script type="module" src="src/app.js"></script>
 </body>
 </html>
