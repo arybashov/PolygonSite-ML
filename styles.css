@@ -325,6 +325,129 @@ canvas {
   margin-top: auto;
 }
 
+.btn-results {
+  margin-left: auto;
+  font-size: 10px;
+  padding: 4px 14px;
+  letter-spacing: 0.12em;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.overlay.hidden {
+  display: none;
+}
+
+.overlay-box {
+  background: #131612;
+  border: 1px solid rgba(80, 200, 100, 0.2);
+  border-radius: 6px;
+  width: min(1000px, 95vw);
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.overlay-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 18px;
+  border-bottom: 1px solid rgba(80, 200, 100, 0.15);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: var(--green);
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.btn-close {
+  font-size: 18px;
+  padding: 0 6px;
+  border: none;
+  letter-spacing: 0;
+  line-height: 1;
+  color: var(--text-dim);
+}
+
+.btn-close:hover {
+  color: var(--green);
+  background: transparent;
+}
+
+.overlay-body {
+  padding: 18px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.chart-empty {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-dim);
+  text-align: center;
+  padding: 40px 0;
+}
+
+.chart-empty.hidden { display: none; }
+
+.charts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.charts-grid.hidden { display: none; }
+
+.chart-wrap {
+  height: 240px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(80, 200, 100, 0.1);
+  border-radius: 4px;
+  padding: 10px;
+}
+
+.runs-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-dim);
+}
+
+.runs-table th {
+  text-align: left;
+  color: var(--green-dim);
+  letter-spacing: 0.1em;
+  padding: 4px 10px;
+  border-bottom: 1px solid rgba(80, 200, 100, 0.15);
+}
+
+.runs-table td {
+  padding: 5px 10px;
+  border-bottom: 1px solid rgba(80, 200, 100, 0.06);
+}
+
+.run-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
 @media (max-width: 700px) {
   body {
     height: auto;

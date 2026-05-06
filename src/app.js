@@ -1,4 +1,5 @@
 import { DEFAULT_PARAMS, MAX_DRONES, PARAM_DEFS } from './constants.js';
+import { initResultsPanel } from './charts.js';
 import {
   DEPLOYMENT_OBSERVATION_SCHEMA,
   TEAM_OBSERVATION_SCHEMA,
@@ -27,6 +28,12 @@ bindControls();
 syncMlPanel();
 updateStats();
 requestAnimationFrame(loop);
+
+initResultsPanel(
+  document.getElementById('btnResults'),
+  document.getElementById('resultsOverlay'),
+  document.getElementById('btnCloseResults'),
+);
 
 function bindControls() {
   resetButton.addEventListener('click', () => {

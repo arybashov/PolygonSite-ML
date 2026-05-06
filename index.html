@@ -5,13 +5,32 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Drone Intercept Simulator ML</title>
   <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 </head>
 <body>
   <header>
     <div class="logo">SIM // ML SANDBOX</div>
     <h1>Drone Intercept Simulator</h1>
     <div class="subtitle">2500 x 2500 м · обучаем только дроны</div>
+    <button id="btnResults" type="button" class="btn-results">Results</button>
   </header>
+
+  <div id="resultsOverlay" class="overlay hidden">
+    <div class="overlay-box">
+      <div class="overlay-header">
+        <span>Training Results</span>
+        <button id="btnCloseResults" type="button" class="btn-close">×</button>
+      </div>
+      <div class="overlay-body">
+        <p id="chartEmpty" class="chart-empty hidden"></p>
+        <div id="chartsGrid" class="charts-grid hidden">
+          <div class="chart-wrap"><canvas id="chartReward"></canvas></div>
+          <div class="chart-wrap"><canvas id="chartRates"></canvas></div>
+        </div>
+        <div id="runsTable"></div>
+      </div>
+    </div>
+  </div>
 
   <main class="main">
     <aside class="sidebar">

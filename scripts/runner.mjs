@@ -1,6 +1,8 @@
 // Usage:
 //   node scripts/runner.mjs [--episodes 100] [--seed 0] [--policy rule|stub]
 //                           [--ndrones 5] [--nanti 5] [--timeout 300] [--detail]
+//                           [--out results.json] [--label "my run"]
+import { readFileSync, writeFileSync } from 'fs';
 import { DEFAULT_PARAMS } from '../src/constants.js';
 import { RuleBasedDronePolicy } from '../src/policies/dronePolicy.js';
 import { createTeamMlStubPolicy } from '../src/policies/teamMlStub.js';
@@ -12,6 +14,8 @@ const seedStart  = args.seed      ?? 0;
 const policyName = args.policy    ?? 'rule';
 const timeoutSec = args.timeout   ?? 300;
 const detail     = 'detail' in args;
+const outFile    = args.out       ?? null;
+const label      = args.label     ?? null;
 
 const params = {
   ...DEFAULT_PARAMS,
@@ -59,6 +63,24 @@ const output = {
 };
 
 console.log(JSON.stringify(output, null, 2));
+
+if (outFile) {
+  const run = {
+    id:        Date.now(),
+    timestamp: new Date().toISOString(),
+    label:     label ?? policyName,
+    policy:    policyName,
+    params:    { ndrones: params.ndrones, nanti: params.nanti },
+    summary,
+    records,
+  };
+
+  let existing = [];
+  try { existing = JSON.parse(readFileSync(outFile, 'utf8')); } catch {}
+  existing.push(run);
+  writeFileSync(outFile, JSON.stringify(existing, null, 2));
+  console.error(`Saved to ${outFile} (${existing.length} runs total)`);
+}
 
 function makePolicy(name) {
   return name === 'stub' ? createTeamMlStubPolicy() : new RuleBasedDronePolicy();
