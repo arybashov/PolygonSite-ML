@@ -401,6 +401,17 @@ canvas {
 
 .chart-empty.hidden { display: none; }
 
+.chart-summary-wrap {
+  height: 200px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(80, 200, 100, 0.1);
+  border-radius: 4px;
+  padding: 10px;
+  margin-bottom: 16px;
+}
+
+.chart-summary-wrap.hidden { display: none; }
+
 .charts-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;

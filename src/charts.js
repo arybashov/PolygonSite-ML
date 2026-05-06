@@ -48,6 +48,7 @@ export function initResultsPanel(openBtn, overlay, closeBtn) {
 
     charts.forEach((c) => c.destroy());
     charts = [];
+    charts.push(buildSummaryChart(runs));
     charts.push(buildRewardChart(runs));
     charts.push(buildRatesChart(runs));
     buildTable(runs);
@@ -56,6 +57,7 @@ export function initResultsPanel(openBtn, overlay, closeBtn) {
   function showEmpty(msg) {
     document.getElementById('chartEmpty').textContent = msg;
     document.getElementById('chartEmpty').classList.remove('hidden');
+    document.getElementById('chartSummaryWrap').classList.add('hidden');
     document.getElementById('chartsGrid').classList.add('hidden');
     document.getElementById('runsTable').innerHTML = '';
   }
@@ -68,10 +70,62 @@ function rolling(values, win) {
   });
 }
 
+function buildSummaryChart(runs) {
+  const ctx = document.getElementById('chartSummary').getContext('2d');
+  document.getElementById('chartEmpty').classList.add('hidden');
+  document.getElementById('chartSummaryWrap').classList.remove('hidden');
+  document.getElementById('chartsGrid').classList.remove('hidden');
+
+  const labels = runs.map((r) => r.label ?? r.policy);
+
+  return new window.Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        {
+          label:           'Hit rate',
+          data:            runs.map((r) => r.summary.hit_rate),
+          backgroundColor: 'rgba(78,203,113,0.7)',
+          borderColor:     '#4ecb71',
+          borderWidth:     1,
+        },
+        {
+          label:           'Intercept rate',
+          data:            runs.map((r) => r.summary.intercept_rate),
+          backgroundColor: 'rgba(224,75,74,0.7)',
+          borderColor:     '#e04b4b',
+          borderWidth:     1,
+        },
+        {
+          label:           'Mean reward',
+          data:            runs.map((r) => r.summary.mean_reward),
+          backgroundColor: 'rgba(232,168,48,0.7)',
+          borderColor:     '#e8a830',
+          borderWidth:     1,
+          yAxisID:         'y2',
+        },
+      ],
+    },
+    options: {
+      responsive:          true,
+      maintainAspectRatio: false,
+      animation:           false,
+      plugins: {
+        legend: { labels: { color: '#c8d8c0', font: { family: 'Share Tech Mono', size: 10 } } },
+        title:  { display: true, text: 'Summary comparison', color: '#4ecb71', font: { family: 'Share Tech Mono', size: 11 } },
+      },
+      scales: {
+        x:  { ticks: { color: 'rgba(200,216,192,0.6)', font: { family: 'Share Tech Mono', size: 10 } }, grid: { color: 'rgba(80,200,100,0.08)' } },
+        y:  { min: 0, max: 1, ticks: { color: 'rgba(200,216,192,0.45)', font: { size: 9 } }, grid: { color: 'rgba(80,200,100,0.08)' }, title: { display: true, text: 'rate', color: 'rgba(200,216,192,0.4)', font: { size: 9 } } },
+        y2: { position: 'right', ticks: { color: 'rgba(232,168,48,0.6)', font: { size: 9 } }, grid: { drawOnChartArea: false }, title: { display: true, text: 'reward', color: 'rgba(232,168,48,0.4)', font: { size: 9 } } },
+      },
+    },
+  });
+}
+
 function buildRewardChart(runs) {
   const ctx = document.getElementById('chartReward').getContext('2d');
-  document.getElementById('chartEmpty').classList.add('hidden');
-  document.getElementById('chartsGrid').classList.remove('hidden');
 
   const datasets = runs.map((run, i) => ({
     label:           run.label ?? run.policy,
