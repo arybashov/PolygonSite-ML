@@ -2,3 +2,5 @@
 Thumbs.db
 desktop.ini
 node_modules/
+data/
+results.json
