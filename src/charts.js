@@ -79,7 +79,7 @@ function fmtElapsed(sec) {
   if (sec == null) return '—';
   const h = Math.floor(sec / 3600);
   const m = Math.floor((sec % 3600) / 60);
-  return h > 0 ? `${h}h ${m}m` : `${m}m`;
+  return h > 0 ? `${h}ч ${m}м` : `${m}м`;
 }
 
 function buildTable(runs) {
@@ -102,8 +102,8 @@ function buildTable(runs) {
   document.getElementById('runsTable').innerHTML = `
     <table class="runs-table">
       <thead><tr>
-        <th>Policy</th><th>Params</th><th>Ep</th>
-        <th>Reward</th><th>Hit</th><th>Int</th><th>Ep time</th><th>Train time</th>
+        <th>Политика</th><th>Параметры</th><th>Эп.</th>
+        <th>Награда</th><th>Попадание</th><th>Перехват</th><th>Время эп.</th><th>Время обуч.</th>
       </tr></thead>
       <tbody>${tbody}</tbody>
     </table>`;
@@ -119,7 +119,7 @@ function buildTrainLogChart(log) {
       labels,
       datasets: [
         {
-          label:           'Hit rate',
+          label:           'Попадание',
           data:            log.map((r) => r.eval_hit      ?? null),
           borderColor:     '#4ecb71',
           backgroundColor: 'rgba(78,203,113,0.08)',
@@ -130,7 +130,7 @@ function buildTrainLogChart(log) {
           yAxisID:         'y',
         },
         {
-          label:           'Intercept rate',
+          label:           'Перехват',
           data:            log.map((r) => r.eval_intercept ?? null),
           borderColor:     '#e04b4b',
           backgroundColor: 'transparent',
@@ -141,7 +141,7 @@ function buildTrainLogChart(log) {
           yAxisID:         'y',
         },
         {
-          label:           'Reward',
+          label:           'Награда',
           data:            log.map((r) => r.eval_reward   ?? null),
           borderColor:     '#e8a830',
           backgroundColor: 'transparent',
@@ -152,7 +152,7 @@ function buildTrainLogChart(log) {
           yAxisID:         'y2',
         },
         {
-          label:           'Entropy',
+          label:           'Энтропия',
           data:            log.map((r) => r.entropy       ?? null),
           borderColor:     '#9a8fe0',
           backgroundColor: 'transparent',
@@ -170,14 +170,14 @@ function buildTrainLogChart(log) {
       maintainAspectRatio: false,
       animation:           false,
       plugins: {
-        legend: { labels: { color: '#c8d8c0', font: { family: 'Share Tech Mono', size: 13 } } },
-        title:  { display: true, text: 'Training progress', color: '#4ecb71', font: { family: 'Share Tech Mono', size: 14 } },
+        legend: { labels: { color: '#c8d8c0', font: { family: 'JetBrains Mono', size: 13 } } },
+        title:  { display: true, text: 'Прогресс обучения', color: '#4ecb71', font: { family: 'JetBrains Mono', size: 14 } },
         tooltip: { titleFont: { size: 14 }, bodyFont: { size: 13 } },
       },
       scales: {
-        x:  { ticks: { color: 'rgba(200,216,192,0.6)', font: { family: 'Share Tech Mono', size: 12 } }, grid: { color: 'rgba(80,200,100,0.08)' } },
-        y:  { min: 0, max: 1, ticks: { color: 'rgba(200,216,192,0.6)', font: { size: 12 } }, grid: { color: 'rgba(80,200,100,0.08)' }, title: { display: true, text: 'rate', color: 'rgba(200,216,192,0.6)', font: { size: 12 } } },
-        y2: { position: 'right', ticks: { color: 'rgba(232,168,48,0.7)', font: { size: 12 } }, grid: { drawOnChartArea: false }, title: { display: true, text: 'reward', color: 'rgba(232,168,48,0.7)', font: { size: 12 } } },
+        x:  { ticks: { color: 'rgba(200,216,192,0.6)', font: { family: 'JetBrains Mono', size: 12 } }, grid: { color: 'rgba(80,200,100,0.08)' } },
+        y:  { min: 0, max: 1, ticks: { color: 'rgba(200,216,192,0.6)', font: { size: 12 } }, grid: { color: 'rgba(80,200,100,0.08)' }, title: { display: true, text: 'доля', color: 'rgba(200,216,192,0.6)', font: { size: 12 } } },
+        y2: { position: 'right', ticks: { color: 'rgba(232,168,48,0.7)', font: { size: 12 } }, grid: { drawOnChartArea: false }, title: { display: true, text: 'награда', color: 'rgba(232,168,48,0.7)', font: { size: 12 } } },
         y3: { display: false },
       },
     },
@@ -192,8 +192,8 @@ function chartOptions(title) {
     maintainAspectRatio: false,
     animation:           false,
     plugins: {
-      legend: { labels: { color: '#c8d8c0', font: { family: 'Share Tech Mono', size: 13 } } },
-      title:  { display: true, text: title, color: '#4ecb71', font: { family: 'Share Tech Mono', size: 14 } },
+      legend: { labels: { color: '#c8d8c0', font: { family: 'JetBrains Mono', size: 13 } } },
+      title:  { display: true, text: title, color: '#4ecb71', font: { family: 'JetBrains Mono', size: 14 } },
       tooltip: { titleFont: { size: 14 }, bodyFont: { size: 13 } }
     },
     scales: {
