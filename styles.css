@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Exo+2:wght@400;500;600&display=swap');
 
 *, *::before, *::after {
   box-sizing: border-box;
@@ -18,8 +18,8 @@
   --teal: #3ecaa5;
   --text: #c8d8c0;
   --text-dim: rgba(200, 216, 192, 0.45);
-  --mono: 'Share Tech Mono', monospace;
-  --sans: 'Rajdhani', sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+  --sans: 'Exo 2', sans-serif;
 }
 
 body {
