@@ -133,15 +133,13 @@ function createPolicy() {
 }
 
 function getPolicyLabel() {
-  if (policyMode?.value === 'team-stub') return 'Team ML Stub';
+  if (policyMode?.value === 'team-stub') return 'ML Команда';
   if (policyMode?.value === 'onnx')      return 'ONNX';
-  return 'Rule-based';
+  return 'Правила';
 }
 
 window.addEventListener('startReplay', async () => {
   _replayEpisode++;
-  document.getElementById('replayEp').textContent = _replayEpisode;
-  document.getElementById('replayLabel').classList.remove('hidden');
   policyMode.value = 'onnx';
   syncMlPanel();
   try { await ensureOnnxSession(); } catch (e) {

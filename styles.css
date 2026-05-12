@@ -100,16 +100,6 @@ h1 {
   display: flex;
 }
 
-.replay-label {
-  border: 1px solid rgba(78,203,113,0.4);
-  color: #4ecb71;
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 12px;
-  letter-spacing: 0.12em;
-  padding: 3px 12px;
-  pointer-events: none;
-  align-self: center;
-}
 
 .canvas-area canvas {
   width: 100% !important;
@@ -120,16 +110,16 @@ h1 {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 4px;
-  padding: 14px 18px;
+  padding: 11px 14px;
 }
 
 .panel-title {
   font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.15em;
+  font-size: 11px;
+  letter-spacing: 0.08em;
   color: var(--green-dim);
   text-transform: uppercase;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .controls {
@@ -145,11 +135,11 @@ h1 {
 }
 
 .ctrl label {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--text-dim);
   min-width: 0;
   flex: 1;
-  letter-spacing: 0.02em;
+  letter-spacing: 0;
 }
 
 .ctrl input[type=range] {
@@ -196,9 +186,9 @@ h1 {
 }
 
 .select-row label {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--text-dim);
-  letter-spacing: 0.02em;
+  letter-spacing: 0;
 }
 
 select {
@@ -207,18 +197,18 @@ select {
   color: var(--green);
   border: 1px solid rgba(78, 203, 113, 0.35);
   border-radius: 3px;
-  padding: 7px 9px;
+  padding: 6px 8px;
   font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.04em;
+  font-size: 12px;
+  letter-spacing: 0.02em;
 }
 
 .policy-state {
-  margin-top: 10px;
+  margin-top: 8px;
   font-family: var(--mono);
-  font-size: 10px;
+  font-size: 11px;
   color: var(--text-dim);
-  letter-spacing: 0.06em;
+  letter-spacing: 0.03em;
 }
 
 .policy-state b {
@@ -230,12 +220,12 @@ select {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 8px;
   font-family: var(--mono);
-  font-size: 10px;
+  font-size: 11px;
   color: var(--text-dim);
-  letter-spacing: 0.04em;
-  padding: 3px 0;
+  letter-spacing: 0.02em;
+  padding: 2px 0;
 }
 
 .ml-row b {
@@ -252,9 +242,9 @@ select {
 
 .stat {
   font-family: var(--mono);
-  font-size: 11px;
+  font-size: 12px;
   color: var(--text-dim);
-  letter-spacing: 0.05em;
+  letter-spacing: 0.02em;
 }
 
 .stat b {
@@ -275,10 +265,10 @@ select {
 
 button {
   font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.12em;
+  font-size: 12px;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  padding: 7px 18px;
+  padding: 6px 14px;
   background: transparent;
   color: var(--green);
   border: 1px solid rgba(78, 203, 113, 0.4);
@@ -298,9 +288,9 @@ button:active {
 
 .hint {
   font-family: var(--mono);
-  font-size: 10px;
+  font-size: 11px;
   color: var(--text-dim);
-  letter-spacing: 0.06em;
+  letter-spacing: 0.02em;
 }
 
 canvas {
@@ -319,10 +309,10 @@ canvas {
 .leg-item {
   display: flex;
   align-items: center;
-  gap: 7px;
-  font-size: 11px;
+  gap: 6px;
+  font-size: 12px;
   color: var(--text-dim);
-  letter-spacing: 0.03em;
+  letter-spacing: 0;
 }
 
 .leg-dot {
