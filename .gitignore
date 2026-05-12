@@ -2,7 +2,11 @@
 Thumbs.db
 desktop.ini
 node_modules/
-data/
+data/episodes.ndjson
+data/*.pt
+data/model.onnx
+data/model.onnx.data
+data/test_export.onnx
 results.json
 __pycache__/
 *.pyc
