@@ -6,7 +6,7 @@ import {
   encodeDeploymentObservation,
   encodeTeamObservation,
 } from './ml/observations.js';
-import { RuleBasedDronePolicy } from './policies/dronePolicy.js';
+import { RuleBasedDronePolicy, TeamWaypointMlDronePolicy } from './policies/dronePolicy.js';
 import { createTeamMlStubPolicy } from './policies/teamMlStub.js';
 import { CanvasRenderer } from './render.js';
 import { Simulation } from './simulation.js';
@@ -98,15 +98,60 @@ function updateStats() {
   updateIntentStats();
 }
 
+let _onnxSession   = null;
+let _onnxCache     = null;
+let _onnxBusy      = false;
+let _replayEpisode = 0;
+
+async function ensureOnnxSession() {
+  if (_onnxSession) return;
+  _onnxSession = await window.ort.InferenceSession.create('data/model_web.onnx');
+}
+
+function makeOnnxActionProvider() {
+  _onnxCache = null;
+  return (obs) => {
+    if (!_onnxBusy && _onnxSession) {
+      _onnxBusy = true;
+      const t = new window.ort.Tensor('float32', Float32Array.from(obs), [1, obs.length]);
+      _onnxSession.run({ obs: t })
+        .then((out) => { _onnxCache = Array.from(out.action.data); })
+        .catch(() => {})
+        .finally(() => { _onnxBusy = false; });
+    }
+    return _onnxCache;
+  };
+}
+
 function createPolicy() {
-  return policyMode?.value === 'team-stub'
-    ? createTeamMlStubPolicy()
-    : new RuleBasedDronePolicy();
+  if (policyMode?.value === 'team-stub') return createTeamMlStubPolicy();
+  if (policyMode?.value === 'onnx') {
+    ensureOnnxSession().catch((e) => console.error('ONNX load failed:', e));
+    return new TeamWaypointMlDronePolicy({ actionProvider: makeOnnxActionProvider() });
+  }
+  return new RuleBasedDronePolicy();
 }
 
 function getPolicyLabel() {
-  return policyMode?.value === 'team-stub' ? 'Team ML Stub' : 'Rule-based';
+  if (policyMode?.value === 'team-stub') return 'Team ML Stub';
+  if (policyMode?.value === 'onnx')      return 'ONNX';
+  return 'Rule-based';
 }
+
+window.addEventListener('startReplay', async () => {
+  _replayEpisode++;
+  document.getElementById('replayEp').textContent = _replayEpisode;
+  document.getElementById('replayLabel').classList.remove('hidden');
+  policyMode.value = 'onnx';
+  syncMlPanel();
+  try { await ensureOnnxSession(); } catch (e) {
+    console.error('ONNX load failed:', e);
+    policyMode.value = 'rule';
+    syncMlPanel();
+    return;
+  }
+  resetScenario();
+});
 
 function syncMlPanel() {
   setText('mlDroneSlots', MAX_DRONES);

@@ -27,7 +27,7 @@ export const MAX_ANTIDRONES = 15;
 export const DEFAULT_PARAMS = Object.freeze({
   dspeed: 200,
   aspeed: 300,
-  camrange: 1500,
+  camrange: 900,
   arange: 600,
   ndrones: 5,
   nanti: 5,

@@ -4,3 +4,7 @@ desktop.ini
 node_modules/
 data/
 results.json
+__pycache__/
+*.pyc
+.claude/
+dummy_train_log.json

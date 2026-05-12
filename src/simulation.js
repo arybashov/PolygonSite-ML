@@ -255,6 +255,7 @@ export class Simulation {
       alive: true,
       launchDelay: 0,
       pendingTarget: null,
+      battery: 600,
     };
   }
 
@@ -348,16 +349,9 @@ export class Simulation {
         && inCone(anti.x, anti.y, anti.angle, ANTI_FOV, drone.x, drone.y, antiRange);
     });
 
-    if (inView.length > 0) {
-      inView.sort((a, b) => distance(anti.x, anti.y, a.x, a.y) - distance(anti.x, anti.y, b.x, b.y));
-      return inView[0];
-    }
-
-    const signal = this.cameras.find((camera) => {
-      return camera.detected && camera.detected.alive && camera.detected.mode !== 'hit' && camera.detected.mode !== 'intercepted';
-    });
-
-    return signal ? signal.detected : null;
+    if (inView.length === 0) return null;
+    inView.sort((a, b) => distance(anti.x, anti.y, a.x, a.y) - distance(anti.x, anti.y, b.x, b.y));
+    return inView[0];
   }
 
   updateAnti() {
@@ -397,6 +391,13 @@ export class Simulation {
 
       if (anti.mode === 'base') return;
 
+      anti.battery -= this.dt;
+      if (anti.battery <= 0) {
+        anti.alive = false;
+        this.explosions.push({ x: anti.x, y: anti.y, time: 0 }); // optional explosion effect
+        return;
+      }
+
       if (anti.mode !== 'base' && anti.mode !== 'waiting') {
         const inView = this.drones.filter((drone) => {
           return drone.alive
@@ -418,8 +419,8 @@ export class Simulation {
 
       if (anti.mode === 'intercept' || anti.mode === 'chase' || anti.mode === 'lastknown') {
         this.updateActiveAnti(anti, antiSpeedMS, maxTurn, antiRange);
-      } else if (anti.mode === 'return') {
-        this.updateReturningAnti(anti, antiSpeedMS, maxTurn);
+      } else if (anti.mode === 'circle') {
+        this.updateCirclingAnti(anti, antiSpeedMS);
       }
 
       anti.trail.push({ x: anti.x, y: anti.y });
@@ -437,7 +438,7 @@ export class Simulation {
           anti.lastKnownY = newTarget.y;
           anti.mode = 'intercept';
         } else {
-          anti.mode = 'return';
+          anti.mode = 'circle';
           anti.target = null;
           return;
         }
@@ -445,6 +446,9 @@ export class Simulation {
         anti.lastKnownX = anti.target.x;
         anti.lastKnownY = anti.target.y;
         anti.mode = 'chase';
+      } else if (anti.mode === 'chase') {
+        anti.mode = 'circle';
+        return;
       } else {
         anti.mode = 'lastknown';
       }
@@ -459,7 +463,7 @@ export class Simulation {
       gx = anti.lastKnownX;
       gy = anti.lastKnownY;
     } else {
-      anti.mode = 'return';
+      anti.mode = 'circle';
       return;
     }
 
@@ -479,7 +483,7 @@ export class Simulation {
         anti.lastKnownY = newTarget.y;
         anti.mode = 'intercept';
       } else {
-        anti.mode = 'return';
+        anti.mode = 'circle';
         anti.target = null;
         return;
       }
@@ -494,22 +498,11 @@ export class Simulation {
     anti.y = clamp(anti.y, 0, POLY);
   }
 
-  updateReturningAnti(anti, antiSpeedMS, maxTurn) {
-    const homeX = BASE_X + Math.cos(anti.id / this.antidrones.length * Math.PI * 2) * 40;
-    const homeY = BASE_Y + Math.sin(anti.id / this.antidrones.length * Math.PI * 2) * 40;
-    const distHome = distance(anti.x, anti.y, homeX, homeY);
-    if (distHome < 15) {
-      anti.x = homeX;
-      anti.y = homeY;
-      anti.mode = 'base';
-      anti.speed = 0;
-      anti.trail = [];
-      return;
-    }
-
-    const diff = angleDiff(anti.angle, Math.atan2(homeY - anti.y, homeX - anti.x));
-    anti.angle += clamp(diff, -maxTurn, maxTurn);
-    anti.speed = lerp(anti.speed, antiSpeedMS * 0.7, this.dt / 0.3);
+  updateCirclingAnti(anti, antiSpeedMS) {
+    // No comms, no base — circle with large radius (~320m at 300km/h)
+    const circleRate = 15 * Math.PI / 180;
+    anti.angle += circleRate * this.dt;
+    anti.speed = lerp(anti.speed, antiSpeedMS, this.dt / 0.3);
     anti.x += Math.cos(anti.angle) * anti.speed * this.dt * MS;
     anti.y += Math.sin(anti.angle) * anti.speed * this.dt * MS;
     anti.x = clamp(anti.x, 0, POLY);

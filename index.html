@@ -6,6 +6,7 @@
   <title>Drone Intercept Simulator ML</title>
   <link rel="stylesheet" href="styles.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.1/dist/ort.min.js"></script>
 </head>
 <body>
   <header>
@@ -13,6 +14,7 @@
     <h1>Drone Intercept Simulator</h1>
     <div class="subtitle">2500 x 2500 м · обучаем только дроны</div>
     <button id="btnResults" type="button" class="btn-results">Results</button>
+    <div id="replayLabel" class="replay-label hidden">REPLAY · ep&nbsp;<span id="replayEp">1</span></div>
   </header>
 
   <div id="resultsOverlay" class="overlay hidden">
@@ -22,18 +24,11 @@
         <button id="btnCloseResults" type="button" class="btn-close">×</button>
       </div>
       <div class="overlay-body">
-        <p id="chartEmpty" class="chart-empty hidden"></p>
-        <div id="chartSummaryWrap" class="chart-summary-wrap hidden">
-          <canvas id="chartSummary"></canvas>
-        </div>
-        <div id="chartsGrid" class="charts-grid hidden">
-          <div class="chart-wrap"><canvas id="chartReward"></canvas></div>
-          <div class="chart-wrap"><canvas id="chartRates"></canvas></div>
-        </div>
-        <div id="runsTable"></div>
-        <div id="trainLogWrap" class="chart-summary-wrap hidden" style="margin-top:16px">
+        <div id="trainLogWrap" class="chart-summary-wrap hidden">
           <canvas id="chartTrainLog"></canvas>
         </div>
+        <p id="chartEmpty" class="chart-empty hidden"></p>
+        <div id="runsTable"></div>
       </div>
     </div>
   </div>
@@ -127,6 +122,7 @@
           <select id="policyMode">
             <option value="rule">Rule-based</option>
             <option value="team-stub">Team ML Stub</option>
+            <option value="onnx">ONNX</option>
           </select>
         </div>
         <div class="policy-state">Active: <b id="policyStatus">Rule-based</b></div>

@@ -13,7 +13,7 @@ const args       = parseArgs(process.argv.slice(2));
 const modelPath  = args.model    ?? 'data/model_web.onnx';
 const episodes   = args.episodes ?? 200;
 const seedStart  = args.seed     ?? 0;
-const timeoutSec = args.timeout  ?? 300;
+const timeoutSec = args.timeout  ?? 1000;
 const outFile    = args.out      ?? null;
 const label      = args.label    ?? 'BC model';
 

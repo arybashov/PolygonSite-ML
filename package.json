@@ -9,7 +9,8 @@
     "run:stub": "node scripts/runner.mjs --policy stub",
     "record": "node scripts/recorder.mjs --policy rule --episodes 200 --out data/episodes.ndjson",
     "eval": "node scripts/eval_model.mjs --out results.json --label \"BC model\"",
-    "serve": "python -m http.server 8000"
+    "serve": "python -m http.server 8000",
+    "parity": "python test_sim_parity.py"
   },
   "dependencies": {
     "onnxruntime-node": "^1.25.1"

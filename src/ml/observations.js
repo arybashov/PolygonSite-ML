@@ -111,10 +111,20 @@ export function decodeTeamWaypointActions(output, sim, options = {}) {
     const dx = clamp(Number(output?.[offset] ?? 0), -1, 1) * scale;
     const dy = clamp(Number(output?.[offset + 1] ?? 0), -1, 1) * scale;
     const intent = Number(output?.[offset + 2] ?? 0) < 0 ? 'evade' : 'attack';
+    
+    const target = sim.targets[drone.targetIdx];
+    const targetX = target ? target.x : drone.rtx;
+    const targetY = target ? target.y : drone.rty;
+    const rdx = targetX - drone.x;
+    const rdy = targetY - drone.y;
+    const dist = Math.hypot(rdx, rdy) || 1;
+    const baseTx = drone.x + (rdx / dist) * scale;
+    const baseTy = drone.y + (rdy / dist) * scale;
+
     actions.set(drone.id, {
       kind: 'guidance',
-      tx: clamp(drone.x + dx, 0, POLY),
-      ty: clamp(drone.y + dy, 0, POLY),
+      tx: clamp(baseTx + dx, 0, POLY),
+      ty: clamp(baseTy + dy, 0, POLY),
       intent,
       mode: intent === 'evade' ? 'team-evade' : 'team-attack',
       cruiseKmh: sim.getParam('dspeed'),

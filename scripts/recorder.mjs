@@ -19,7 +19,7 @@ const args       = parseArgs(process.argv.slice(2));
 const episodes   = args.episodes ?? 200;
 const seedStart  = args.seed     ?? 0;
 const policyName = args.policy   ?? 'rule';
-const timeoutSec = args.timeout  ?? 300;
+const timeoutSec = args.timeout  ?? 1000;
 const outFile    = args.out      ?? 'data/episodes.ndjson';
 
 const params = {
